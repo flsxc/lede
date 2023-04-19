@@ -98,7 +98,7 @@ EOF
         ~/.acme.sh/acme.sh  --register-account  -m test@$your_domain --server zerossl
         ~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
         blue "开始搞证书 -3- "
-        if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
+        if test -s /root/.acme.sh/$your_domain_ecc/fullchain.cer; then
             yellow "---  cert_success 1 ---....."
             cert_success="1"
         fi
@@ -114,7 +114,7 @@ EOF
             ~/.acme.sh/acme.sh  --register-account  -m test@$your_domain --server zerossl
             ~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
             blue "开始搞证书 -6- "
-            if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
+            if test -s /root/.acme.sh/$your_domain_ecc/fullchain.cer; then
                 yellow "---  cert_success 2 ---....."
                 cert_success="1"
             fi
@@ -129,7 +129,7 @@ EOF
         ~/.acme.sh/acme.sh  --register-account  -m test@$your_domain --server zerossl
         ~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
         blue "开始搞证书 -8- "
-        if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
+        if test -s /root/.acme.sh/$your_domain_ecc/fullchain.cer; then
             cert_success="1"
         fi
     fi
