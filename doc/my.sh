@@ -8,6 +8,16 @@ function green(){
 function red(){
     echo -e "\033[31m\033[01m$1\033[0m"
 }
+function orange(){
+    echo -e "\033[33m\033[01m$1\033[0m"
+}
+function purple(){
+    echo -e "\033[35m\033[01m$1\033[0m"
+}
+function yellow(){
+    echo -e "\033[33m\033[01m$1\033[0m"
+}
+
 function version_lt(){
     test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; 
 }
@@ -63,43 +73,49 @@ http {
 EOF
     systemctl restart nginx
     sleep 3
-    green "开始下载moban...."
+    
     rm -rf /usr/share/nginx/html/*
     cd /usr/share/nginx/html/
-    wget https://github.com/flsxc/lede_old/blob/master/doc/moban.tar.gz >/dev/null 2>&1
-    unzip moban.zip >/dev/null 2>&1
+    blue "开始下载 moban..."
+    wget https://github.com/flsxc/lede_old/raw/master/doc/moban.tar.gz >/dev/null 2>&1
+    blue "解压缩 moban...到/usr/share/nginx/html/ "
+    tar -xvf moban.tar.gz >/dev/null 2>&1
     sleep 5
     if [ ! -d "/usr/src" ]; then
         mkdir /usr/src
     fi
-    green "开始搞证书....."
+    blue "开始搞证书 -1- "
     if [ ! -d "/usr/src/trojan-cert" ]; then
+        blue "开始搞证书 -2- "
         mkdir /usr/src/trojan-cert /usr/src/trojan-temp
         mkdir /usr/src/trojan-cert/$your_domain
         if [ ! -d "/usr/src/trojan-cert/$your_domain" ]; then
             red "不存在/usr/src/trojan-cert/$your_domain目录"
             exit 1
         fi
-        green "开始 https://get.acme.sh....."
+        blue "开始 https://get.acme.sh....."
         curl https://get.acme.sh | sh
         ~/.acme.sh/acme.sh  --register-account  -m test@$your_domain --server zerossl
         ~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
+        blue "开始搞证书 -3- "
         if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
-            green "---  cert_success 1 ---....."
+            yellow "---  cert_success 1 ---....."
             cert_success="1"
         fi
     elif [ -f "/usr/src/trojan-cert/$your_domain/fullchain.cer" ]; then
+        blue "开始搞证书 -4- "
         cd /usr/src/trojan-cert/$your_domain
         create_time=`stat -c %Y fullchain.cer`
         now_time=`date +%s`
         minus=$(($now_time - $create_time ))
-        green "---  这里..... ....."
+        blue "开始搞证书 -5- "
         if [  $minus -gt 5184000 ]; then
             curl https://get.acme.sh | sh
             ~/.acme.sh/acme.sh  --register-account  -m test@$your_domain --server zerossl
             ~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
+            blue "开始搞证书 -6- "
             if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
-                green "---  cert_success 2 ---....."
+                yellow "---  cert_success 2 ---....."
                 cert_success="1"
             fi
         else 
@@ -107,11 +123,12 @@ EOF
             cert_success="1"
         fi        
     else 
+        blue "开始搞证书 -7- "
         mkdir /usr/src/trojan-cert/$your_domain
         curl https://get.acme.sh | sh
         ~/.acme.sh/acme.sh  --register-account  -m test@$your_domain --server zerossl
         ~/.acme.sh/acme.sh  --issue  -d $your_domain  --nginx
-        green "---  这里  333 ..... ....."
+        blue "开始搞证书 -8- "
         if test -s /root/.acme.sh/$your_domain/fullchain.cer; then
             cert_success="1"
         fi
@@ -155,23 +172,34 @@ EOF
         systemctl restart nginx
         systemctl enable nginx
         cd /usr/src
+        
         #wget https://api.github.com/repos/trojan-gfw/trojan/releases/latest >/dev/null 2>&1
         #latest_version=`grep tag_name latest| awk -F '[:,"v]' '{print $6}'`
+        #trojan 已经不更新了，直接写死
         latest_version='1.16.0'
+        
         #rm -f latest
-        green "开始下载最新版trojan amd64"
+        green "开始下载最新版trojan amd64 ..."
         wget https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-linux-amd64.tar.xz
+        blue "开始解压缩 trojan "
         tar xf trojan-${latest_version}-linux-amd64.tar.xz >/dev/null 2>&1
         rm -f trojan-${latest_version}-linux-amd64.tar.xz
-        #下载trojan客户端
-        green "开始下载并处理trojan windows客户端"
-        wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
-        wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
-        unzip -o trojan-cli.zip >/dev/null 2>&1
-        unzip -o /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
-        mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/
+        
         green "请设置trojan密码，建议不要出现特殊字符"
         read -p "请输入密码 :" trojan_passwd
+        
+        #下载trojan客户端
+        #green "开始下载并处理trojan windows 客户端 .."
+        yellow "这里我去掉了 windows 客户端的下载和生成. "
+        
+        : <<'END_COMMENT'
+        #-----------------
+        #wget https://github.com/atrandys/trojan/raw/master/trojan-cli.zip
+        #wget -P /usr/src/trojan-temp https://github.com/trojan-gfw/trojan/releases/download/v${latest_version}/trojan-${latest_version}-win.zip
+        #unzip -o trojan-cli.zip >/dev/null 2>&1
+        #unzip -o /usr/src/trojan-temp/trojan-${latest_version}-win.zip -d /usr/src/trojan-temp/ >/dev/null 2>&1
+        #mv -f /usr/src/trojan-temp/trojan/trojan.exe /usr/src/trojan-cli/
+
         #trojan_passwd=$(cat /dev/urandom | head -1 | md5sum | head -c 8)
         cat > /usr/src/trojan-cli/config.json <<-EOF
 {
@@ -206,6 +234,9 @@ EOF
     }
 }
 EOF
+
+END_COMMENT
+
          rm -rf /usr/src/trojan/server.conf
          cat > /usr/src/trojan/server.conf <<-EOF
 {
@@ -250,10 +281,10 @@ EOF
     }
 }
 EOF
-        cd /usr/src/trojan-cli/
-        zip -q -r trojan-cli.zip /usr/src/trojan-cli/
-        rm -rf /usr/src/trojan-temp/
-        rm -f /usr/src/trojan-cli.zip
+        #cd /usr/src/trojan-cli/
+        #zip -q -r trojan-cli.zip /usr/src/trojan-cli/
+        #rm -rf /usr/src/trojan-temp/
+        #rm -f /usr/src/trojan-cli.zip
         trojan_path=$(cat /dev/urandom | head -1 | md5sum | head -c 16)
         #mkdir /usr/share/nginx/html/${trojan_path}
         #mv /usr/src/trojan-cli/trojan-cli.zip /usr/share/nginx/html/${trojan_path}/	
@@ -281,15 +312,29 @@ EOF
             --key-file   /usr/src/trojan-cert/$your_domain/private.key \
             --fullchain-file  /usr/src/trojan-cert/$your_domain/fullchain.cer \
             --reloadcmd  "systemctl restart trojan"	
+            
+        #green "==========================================================================="
+        #green "windows客户端路径/usr/src/trojan-cli/trojan-cli.zip，此客户端已配置好所有参数"
+        #green "==========================================================================="
+        #echo
+        #echo
+        #green "                          客户端配置文件"
+        #green "==========================================================================="
+        #cat /usr/src/trojan-cli/config.json
+        #green "==========================================================================="
+        
         green "==========================================================================="
-        green "windows客户端路径/usr/src/trojan-cli/trojan-cli.zip，此客户端已配置好所有参数"
+        yellow "                         服务器端安装完成"
         green "==========================================================================="
         echo
         echo
-        green "                          客户端配置文件"
+        green "                          服务端配置文件"
         green "==========================================================================="
-        cat /usr/src/trojan-cli/config.json
-        green "==========================================================================="
+        cat /usr/src/trojan/server.conf 
+        green "==========================================================================="        
+        
+        
+        
     else
         red "==================================="
         red "https证书没有申请成功，本次安装失败"
