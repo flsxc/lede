@@ -482,6 +482,7 @@ function repair_cert(){
     blue "务必与之前失败使用的域名一致"
     green "============================"
     read your_domain
+
     real_addr=`ping ${your_domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
     local_addr=`curl ipv4.icanhazip.com`
     if [ $real_addr == $local_addr ] ; then
@@ -592,6 +593,12 @@ start_menu(){
     ;;
     4)
     repair_cert 
+    ;;
+    5)
+    read your_domain
+
+    ls /root/.acme.sh/$your_domain/fullchain.cer
+    cat /root/.acme.sh/$your_domain/fullchain.cer
     ;;
     0)
     exit 1
