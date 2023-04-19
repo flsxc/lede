@@ -523,7 +523,7 @@ function remove_trojan(){
         find / | grep nginx | sudo xargs rm -rf
     fi
     rm -rf /usr/src/trojan/
-    rm -rf /usr/src/trojan-cert/
+    #rm -rf /usr/src/trojan-cert/
     rm -rf /usr/src/trojan-temp/
     rm -rf /usr/src/trojan-cli/
     rm -rf /usr/share/nginx/html/*
