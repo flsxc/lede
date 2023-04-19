@@ -597,7 +597,7 @@ start_menu(){
     5)
     read your_domain
 
-    ls /root/.acme.sh/$your_domain/fullchain.cer
+    ls /root/.acme.sh/${your_domain}_ecc/fullchain.cer
     cat /root/.acme.sh/$your_domain/fullchain.cer
     ;;
     0)
