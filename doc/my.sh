@@ -66,7 +66,7 @@ EOF
     green "开始下载moban...."
     rm -rf /usr/share/nginx/html/*
     cd /usr/share/nginx/html/
-    wget https://github.com/flsxc/lede_old/blob/master/doc/moban.zip >/dev/null 2>&1
+    wget https://github.com/flsxc/lede_old/blob/master/doc/moban.tar.gz >/dev/null 2>&1
     unzip moban.zip >/dev/null 2>&1
     sleep 5
     if [ ! -d "/usr/src" ]; then
