@@ -595,6 +595,7 @@ start_menu(){
     repair_cert 
     ;;
     5)
+    yellow "请随便输入:"
     read your_domain
 
     ls /root/.acme.sh/${your_domain}_ecc/fullchain.cer
