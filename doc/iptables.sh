@@ -10,3 +10,6 @@ iptables -A OUTPUT -m string --string "youtube.com" --algo bm --to 65535 -j DROP
 
 iptables -D OUTPUT -m string --string "youtube.com" --algo bm --to 65535 -j DROP
  # 删除屏蔽规则，上面添加的代码是什么样，那么删除的代码就是把 -A 改成 -D
+
+
+iptables -A FORWARD -m string --string "youtube.com" --algo bm --to 65535 -j DROP
