@@ -1,14 +1,15 @@
+#!/bin/bash
 
-iptables -A OUTPUT -m string --string "youtube.com" --algo bm --to 65535 -j DROP
+# Save the current iptables rules
+iptables-save > /etc/iptables.rules
 
+# Create the iptables startup script
+cat > /etc/network/if-pre-up.d/iptables << EOF
+#!/bin/sh
+/sbin/iptables-restore < /etc/iptables.rules
+EOF
 
- 以下规则是屏蔽以 youtube.com 为主的所有一级 二级 三级等域名。
+# Set the executable permission for the startup script
+chmod +x /etc/network/if-pre-up.d/iptables
 
-iptables -A OUTPUT -m string --string "youtube.com" --algo bm --to 65535 -j DROP
- # 添加屏蔽规则
-
-iptables -D OUTPUT -m string --string "youtube.com" --algo bm --to 65535 -j DROP
- # 删除屏蔽规则，上面添加的代码是什么样，那么删除的代码就是把 -A 改成 -D
-
-
-iptables -A FORWARD -m string --string "youtube.com" --algo bm --to 65535 -j DROP
+echo "Iptables rules saved and startup script created successfully."
