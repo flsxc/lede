@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of blocked domains
-BLOCKED_DOMAINS=("youtube.com" "facebook.com" "twitter.com")
+BLOCKED_DOMAINS=("wenxuecity.com" "facebook.com" "twitter.com")
 
 if [ ! -f /etc/iptables.rules ]; then
   # Add iptables rules for each blocked domain
