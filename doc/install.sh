@@ -98,7 +98,7 @@ fi
 
 # Activate the virtual environment and install requirements
 source venv/bin/activate
-pip install --use-pep517 -r requirements.txt
+pip install --use-pep517 -r linux_requirements.txt
 
 # Create 'models' folders if they don't exist
 mkdir -p models
