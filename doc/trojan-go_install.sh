@@ -337,7 +337,7 @@ tls_generate_bak3() {
 }
 
 
-tls_generate() {
+tls_generate_bak4() {
   if [[ -f "/data/${domain}/fullchain.crt" ]] && [[ -f "/data/${domain}/privkey.key" ]]; then
     echo -e "${Info}证书已存在……不需要再重新签发了……"
   else
@@ -377,6 +377,47 @@ tls_generate() {
   fi
 }
 
+
+
+tls_generate() {
+  if [[ -f "/data/${domain}/fullchain.crt" ]] && [[ -f "/data/${domain}/privkey.key" ]]; then
+    echo -e "${Info}证书已存在……不需要再重新签发了……"
+  else
+    # 提示用户输入电子邮件地址
+    read -rp "请输入用于注册的电子邮件地址: " email
+    echo -e "${email} 将用于注册证书...."
+
+    if "$HOME"/.acme.sh/acme.sh --register-account -m "${email}" --server letsencrypt; then
+        if "$HOME"/.acme.sh/acme.sh --issue -d "${domain}" --standalone -k ec-256 --force --test --server letsencrypt; then
+            echo -e "${Info} TLS 证书测试签发成功，开始正式签发"
+            rm -rf "$HOME/.acme.sh/${domain}_ecc"
+            sleep 2
+        else
+            echo -e "${Error}TLS 证书测试签发失败 "
+            rm -rf "$HOME/.acme.sh/${domain}_ecc"
+            exit 1
+        fi
+
+        if "$HOME"/.acme.sh/acme.sh --issue -d "${domain}" --standalone -k ec-256 --force --server letsencrypt; then
+            echo -e "${Info} TLS 证书生成成功 "
+            sleep 2
+            [[ ! -d "/data" ]] && mkdir /data
+            [[ ! -d "/data/${domain}" ]] && mkdir "/data/${domain}"
+            if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath /data/${domain}/fullchain.crt --keypath /data/${domain}/privkey.key --ecc --force; then
+                echo -e "${Info}证书配置成功 "
+                sleep 2
+            fi
+        else
+            echo -e "${Error} TLS 证书生成失败"
+            rm -rf "$HOME/.acme.sh/${domain}_ecc"
+            exit 1
+        fi
+    else
+        echo -e "${Error} 注册账户失败，请检查你的电子邮件地址和网络连接"
+        exit 1
+    fi
+  fi
+}
 
 
 
