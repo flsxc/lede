@@ -227,7 +227,7 @@ tls_generate_script_install() {
     sucess_or_fail "安装 tls 证书生成脚本"
     source ~/.bashrc
 }
-tls_generate() {
+tls_generate_bak() {
   if [[ -f "/data/${domain}/fullchain.crt" ]] && [[ -f "/data/${domain}/privkey.key" ]]; then
     echo -e "${Info}证书已存在……不需要再重新签发了……"
   else
@@ -257,6 +257,48 @@ tls_generate() {
     fi
   fi
 }
+
+
+tls_generate() {
+  if [[ -f "/data/${domain}/fullchain.crt" ]] && [[ -f "/data/${domain}/privkey.key" ]]; then
+    echo -e "${Info}证书已存在……不需要再重新签发了……"
+  else
+    if "$HOME"/.acme.sh/acme.sh --register-account -m my@example.com --server letsencrypt; then
+        if "$HOME"/.acme.sh/acme.sh --issue -d "${domain}" --standalone -k ec-256 --force --test; then
+            echo -e "${Info} TLS 证书测试签发成功，开始正式签发"
+            rm -rf "$HOME/.acme.sh/${domain}_ecc"
+            sleep 2
+        else
+            echo -e "${Error}TLS 证书测试签发失败 "
+            rm -rf "$HOME/.acme.sh/${domain}_ecc"
+            exit 1
+        fi
+
+        if "$HOME"/.acme.sh/acme.sh --issue -d "${domain}" --standalone -k ec-256 --force; then
+            echo -e "${Info} TLS 证书生成成功 "
+            sleep 2
+            [[ ! -d "/data" ]] && mkdir /data
+            [[ ! -d "/data/${domain}" ]] && mkdir "/data/${domain}"
+            if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath /data/${domain}/fullchain.crt --keypath /data/${domain}/privkey.key --ecc --force; then
+                echo -e "${Info}证书配置成功 "
+                sleep 2
+            fi
+        else
+            echo -e "${Error} TLS 证书生成失败"
+            rm -rf "$HOME/.acme.sh/${domain}_ecc"
+            exit 1
+        fi
+    else
+        echo -e "${Error} 注册账户失败，请检查你的电子邮件地址和网络连接"
+        exit 1
+    fi
+  fi
+}
+
+
+
+
+
 install_nginx() {
   if [[ -f ${nginx_bin_file} ]]; then
      echo -e "${Info} Nginx已存在，跳过编译安装过程 ${Font}"
